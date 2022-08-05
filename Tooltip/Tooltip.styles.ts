@@ -101,6 +101,7 @@ export const Container = styled.div`
 export const TooltipContainer = styled.div<TooltipStyleProps>`
   position: absolute;
   min-height: fit-content;
+  max-width: 150px;
   display: flex;
   align-items: center;
   background: #555;

@@ -7,13 +7,51 @@ interface TooltipProps {
   placement?: Placement;
 }
 
-const Tooltip = ({ children, message, placement }: TooltipProps) => {
+const Tooltip = ({ children, message, placement = 'top' }: TooltipProps) => {
+  const ref = React.useRef<HTMLDivElement>(null);
+  const [currPlacement, setCurrPlacement] =
+    React.useState<Placement>(placement);
+
+  const updatePlacement = React.useCallback(
+    (element: HTMLDivElement) => {
+      const rect = element.getBoundingClientRect();
+      const { pageXOffset, pageYOffset, innerHeight, innerWidth } = window;
+      const efp = (x: number, y: number) => document.elementFromPoint(x, y);
+
+      console.log('tooltip', rect);
+      console.log('window', {
+        pageXOffset,
+        pageYOffset,
+        innerHeight,
+        innerWidth,
+      });
+
+      if (!efp(rect.left, rect.top) || !efp(rect.right, rect.top)) {
+        setCurrPlacement('bottom');
+        return;
+      }
+
+      if (!efp(rect.left, rect.bottom) || !efp(rect.right, rect.bottom)) {
+        setCurrPlacement('top');
+        return;
+      }
+    },
+    [setCurrPlacement]
+  );
+
+  React.useEffect(() => {
+    if (ref.current) {
+      updatePlacement(ref.current);
+    }
+  }, []);
+
   return (
     <Container>
       {children}
       <TooltipContainer
         className="tooltip-container"
-        placement={placement || 'top'}
+        placement={currPlacement}
+        ref={ref}
       >
         {message}
       </TooltipContainer>
